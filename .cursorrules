@@ -1,0 +1,546 @@
+# QR-IO Project Coding Standards
+
+## Project Overview
+This is a React Native/Expo TypeScript project using Clerk for authentication, Supabase for backend, and Expo Router for navigation. The project follows a component-based architecture with strict TypeScript typing.
+
+## File Organization & Structure
+
+### Directory Structure
+- `app/` - Expo Router pages and navigation
+- `src/` - Main source code
+  - `components/` - Reusable React components
+  - `hooks/` - Custom React hooks
+  - `api/` - Backend integration and API calls
+  - `types/` - TypeScript type definitions
+  - `utils/` - Utility functions
+  - `zod-types/` - Zod schema definitions
+  - `meta-org/` - Post type metadata and organization
+  - `contexts/` - React context providers
+  - `constants/` - Application constants
+- `assets/` - Static assets (images, fonts, sounds)
+- `utils/` - App-specific utilities
+
+### File Naming Conventions
+- Use kebab-case for file names: `my-component.tsx`
+- Use PascalCase for component names: `MyComponent`
+- Use camelCase for utility files: `myUtility.ts`
+- Use UPPER_SNAKE_CASE for constants: `API_ENDPOINTS.ts`
+
+## TypeScript & Type Safety
+
+### Type Definitions
+- Always define interfaces for component props
+- Use branded types for IDs and special strings
+- Prefer `interface` over `type` for object shapes
+- Use union types for discriminated unions
+- Export types from dedicated type files
+
+```typescript
+interface ComponentProps {
+  title: string;
+  onPress: () => void;
+  isActive?: boolean;
+}
+
+export type SortMethod = 'name' | 'lastUpdated';
+```
+
+### Zod Schemas
+- Use Zod for runtime validation
+- Create branded types from Zod schemas
+- Export schemas from dedicated files
+
+```typescript
+export const HvbColorSchema = z.string().brand('HvbColor');
+export type HvbColor = z.infer<typeof HvbColorSchema>;
+```
+
+## React Component Patterns
+
+### Component Structure
+- Use function components with hooks
+- Export components as named exports
+- Use default export for page components
+- Place styles at the bottom of the file
+
+```typescript
+export const MyComponent = ({ title, onPress }: MyComponentProps) => {
+  const [state, setState] = useState(false);
+  
+  useEffect(() => {
+    // Side effects
+  }, []);
+  
+  return (
+    <View style={styles.container}>
+      <Text>{title}</Text>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 16,
+  },
+});
+```
+
+### Page Components
+- Use default export for page components
+- Keep page components thin, delegate to view components
+- Handle data fetching and state management at page level
+
+```typescript
+export default function MyPage() {
+  const [data, setData] = useState([]);
+  
+  return (
+    <MyPageView data={data} />
+  );
+}
+```
+
+## State Management
+
+### useState Patterns
+- Use functional initialization for complex state
+- Group related state in objects when appropriate
+- Use proper TypeScript typing for state
+
+```typescript
+const [postDetails, setPostDetails] = useState<HvbUserPost>(() => {
+  const defaultPostMeta = getDefaultPostMetaForNewPost();
+  return defaultPostMeta.createDefaultPost(userId);
+});
+```
+
+### useEffect Patterns
+- Use dependency arrays properly
+- Clean up subscriptions and timers
+- Handle async operations with proper error handling
+
+```typescript
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const result = await api.getData();
+      setData(result);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+  
+  fetchData();
+  
+  return () => {
+    // Cleanup
+  };
+}, [dependencies]);
+```
+
+## Styling
+
+### StyleSheet Patterns
+- Use StyleSheet.create for all styles
+- Group related styles together
+- Use semantic naming for style properties
+- Prefer flexbox for layouts
+
+```typescript
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: '#fff',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+});
+```
+
+### Responsive Design
+- Use device-specific hooks for responsive layouts
+- Create responsive style utilities
+- Consider platform differences (iOS/Android/Web)
+
+## API & Backend Integration
+
+### Backend Patterns
+- Use interface definitions for backend contracts
+- Implement proper error handling
+- Use typed API responses
+- Handle authentication tokens properly
+
+```typescript
+export interface IHvbBackend {
+  getAllPosts: () => Promise<HvbUserPostForId[]>;
+  addNewPost: (post: HvbUserPost) => Promise<AddNewPostResult>;
+}
+```
+
+### Data Fetching
+- Use custom hooks for data fetching
+- Implement loading and error states
+- Handle data validation before setting state
+- Use proper cleanup for subscriptions
+
+## Error Handling
+
+### Error Boundaries
+- Implement error boundaries for component trees
+- Log errors appropriately
+- Provide fallback UI for errors
+
+### Validation
+- Use Zod for runtime validation
+- Validate data before setting state
+- Provide meaningful error messages
+
+## Performance
+
+### Optimization
+- Use React.memo for expensive components
+- Implement proper dependency arrays in hooks
+- Avoid unnecessary re-renders
+- Use useCallback and useMemo appropriately
+
+### Memory Management
+- Clean up subscriptions and timers
+- Dispose of resources in useEffect cleanup
+- Handle component unmounting properly
+
+## Code Quality
+
+### Naming Conventions
+- Use descriptive variable and function names
+- Prefix boolean variables with is/has/should
+- Use consistent naming patterns across the codebase
+
+### Comments & Documentation
+- Comment complex business logic
+- Document custom hooks with JSDoc
+- Explain non-obvious code decisions
+
+### Import/Export Patterns
+- Use named imports for components and utilities
+- Use default exports for pages and main components
+- Group imports by type (React, third-party, internal)
+- Use absolute imports with @/ alias
+
+```typescript
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import { useAuth } from '@clerk/clerk-expo';
+
+import { MyComponent } from '@/src/components/MyComponent';
+import { useMyHook } from '@/src/hooks/useMyHook';
+import { MyType } from '@/src/types/MyType';
+```
+
+## Testing
+
+### Test Structure
+- Write tests for custom hooks
+- Test component rendering and interactions
+- Mock external dependencies
+- Use descriptive test names
+
+## Accessibility
+
+### Accessibility Patterns
+- Use proper semantic elements
+- Implement proper focus management
+- Provide alternative text for images
+- Test with screen readers
+
+## Security
+
+### Authentication
+- Handle authentication tokens securely
+- Implement proper token refresh
+- Validate user permissions
+- Sanitize user inputs
+
+### Data Protection
+- Validate all user inputs
+- Use proper data encryption
+- Implement proper session management
+- Follow security best practices
+
+## Platform Considerations
+
+### Cross-Platform Development
+- Use platform-specific code when necessary
+- Test on all target platforms
+- Handle platform differences gracefully
+- Use responsive design patterns
+
+### Web vs Native
+- Consider web-specific features
+- Handle platform-specific APIs
+- Use appropriate navigation patterns
+- Test on all platforms
+
+## Git & Version Control
+
+### Commit Messages
+- Use conventional commit format
+- Write descriptive commit messages
+- Reference issues when applicable
+- Keep commits focused and atomic
+
+### Branch Strategy
+- Use feature branches for development
+- Keep main branch stable
+- Use pull requests for code review
+- Follow semantic versioning
+
+## Dependencies
+
+### Package Management
+- Keep dependencies up to date
+- Use exact versions for critical packages
+- Document dependency purposes
+- Minimize bundle size
+
+### Third-Party Libraries
+- Prefer well-maintained libraries
+- Document library usage patterns
+- Implement proper error handling
+- Consider security implications
+
+## Build & Deployment
+
+### Build Configuration
+- Use proper environment variables
+- Configure build scripts appropriately
+- Handle platform-specific builds
+- Optimize for production
+
+### Environment Management
+- Use environment-specific configurations
+- Handle secrets securely
+- Document environment setup
+- Use proper environment validation
+
+## Monitoring & Debugging
+
+### Logging
+- Use appropriate log levels
+- Log meaningful information
+- Avoid logging sensitive data
+- Implement proper error tracking
+
+### Performance Monitoring
+- Monitor app performance
+- Track user interactions
+- Implement crash reporting
+- Use analytics appropriately
+
+## Documentation
+
+### Code Documentation
+- Document complex functions
+- Explain business logic
+- Provide usage examples
+- Keep documentation up to date
+
+### Project Documentation
+- Maintain README files
+- Document setup procedures
+- Explain architecture decisions
+- Provide troubleshooting guides
+
+## React Native Web Compatibility
+
+
+### JSX Structure Rules
+- **NEVER use HTML elements** in React Native components (no `<div>`, `<span>`, `<p>`, etc.)
+- **ALWAYS use React Native components** (`<View>`, `<Text>`, `<TouchableOpacity>`, etc.)
+- **Wrap conditional content properly**: Use ternary operators with explicit `null` instead of `&&` for conditional rendering
+- **Avoid text nodes as direct children**: Always wrap text content in `<Text>` components
+
+### Conditional Rendering Best Practices
+```typescript
+// ❌ WRONG - Can cause text node issues in React Native Web
+{condition && <Component />}
+
+// ✅ CORRECT - Explicit null handling
+{condition ? <Component /> : null}
+
+// ❌ WRONG - Text node as direct child
+<View>
+  {someText && someText}
+</View>
+
+// ✅ CORRECT - Text wrapped in Text component
+<View>
+  {someText ? <Text>{someText}</Text> : null}
+</View>
+```
+
+### Component Structure
+- **Always use proper React Native imports**: `import { View, Text } from 'react-native'`
+- **Avoid web-specific elements**: No `<span>`, `<div>`, `<button>`, etc.
+- **Use platform-appropriate components**: `<TouchableOpacity>` instead of `<button>`
+
+### Tab Navigation Icons
+- **Use Text components for icons**: Wrap emoji icons in `<Text>` components
+- **Avoid HTML elements in tab icons**: No `<span>` or other HTML elements
+
+```typescript
+// ❌ WRONG - HTML element in tab icon
+tabBarIcon: ({ color }) => (
+  <span style={{ fontSize: 24, color }}>📥</span>
+)
+
+// ✅ CORRECT - React Native Text component
+tabBarIcon: ({ color }) => (
+  <Text style={{ fontSize: 24, color }}>📥</Text>
+)
+```
+
+### Error Prevention
+- **Check for text nodes**: Ensure all text content is wrapped in `<Text>` components
+- **Validate conditional rendering**: Use ternary operators with explicit null
+- **Test on web platform**: Verify components work correctly in React Native Web
+- **Use proper imports**: Always import from 'react-native' not 'react'
+
+### Common Issues to Avoid
+1. **Text nodes as View children**: Always wrap text in Text components
+2. **HTML elements in React Native**: Use only React Native components
+3. **Conditional rendering with &&**: Use ternary operators instead
+4. **Missing Text wrapper**: All text content must be in Text components
+5. **Web-specific styling**: Use React Native StyleSheet instead of CSS
+
+### Debugging Tips
+- **Check console for text node errors**: Look for "Unexpected text node" errors
+- **Verify component imports**: Ensure all components are from 'react-native'
+- **Test conditional rendering**: Verify ternary operators work correctly
+- **Check tab navigation**: Ensure tab icons use Text components
+
+### File Organization
+- **Component files**: Use `.tsx` extension for React components
+- **Type definitions**: Use `.ts` extension for type-only files
+- **Constants**: Use `.ts` extension for constant files
+- **Utilities**: Use `.ts` extension for utility functions
+
+### Import Patterns
+```typescript
+// ✅ CORRECT - React Native imports
+import React from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+
+// ❌ WRONG - HTML elements
+import { div, span } from 'react'; // Don't do this
+```
+
+### Style Guidelines
+- **Use StyleSheet.create**: Always use StyleSheet for styling
+- **Platform-specific styles**: Use Platform.select() for platform differences
+- **Responsive design**: Use flexbox and responsive dimensions
+- **Avoid inline styles**: Prefer StyleSheet over inline styles
+
+### Testing Requirements
+- **Test on all platforms**: iOS, Android, and Web
+- **Verify conditional rendering**: Test all conditional content paths
+- **Check for text node errors**: Ensure no unexpected text nodes
+- **Validate navigation**: Test tab navigation on all platforms
+
+### Performance Considerations
+- **Avoid unnecessary re-renders**: Use React.memo and useCallback appropriately
+- **Optimize conditional rendering**: Use proper ternary operators
+- **Minimize component complexity**: Keep components focused and simple
+- **Use proper key props**: Always provide unique keys for list items
+
+### Accessibility
+- **Use semantic components**: Prefer semantic React Native components
+- **Provide proper labels**: Use accessibilityLabel props
+- **Test with screen readers**: Ensure components work with accessibility tools
+- **Use proper focus management**: Handle focus appropriately
+
+### Security
+- **Validate user inputs**: Always validate and sanitize user data
+- **Use secure storage**: Use appropriate storage methods for sensitive data
+- **Handle permissions properly**: Request and handle permissions correctly
+- **Avoid eval()**: Never use eval() or similar dangerous functions
+
+### Code Quality
+- **Use TypeScript**: Always use TypeScript for type safety
+- **Follow naming conventions**: Use consistent naming patterns
+- **Add proper comments**: Document complex logic and business rules
+- **Use ESLint**: Follow ESLint rules and best practices
+- **Write tests**: Add unit tests for critical functionality
+
+### Git Practices
+- **Use conventional commits**: Follow conventional commit format
+- **Write descriptive messages**: Make commit messages clear and descriptive
+- **Keep commits focused**: Each commit should have a single purpose
+- **Review code**: Always review code before merging
+
+### Documentation
+- **Document components**: Add JSDoc comments for complex components
+- **Explain business logic**: Document non-obvious business rules
+- **Keep README updated**: Maintain current project documentation
+- **Add usage examples**: Provide examples for complex components
+
+### Dependencies
+- **Keep dependencies updated**: Regularly update dependencies
+- **Use exact versions**: Use exact versions for critical packages
+- **Minimize bundle size**: Avoid unnecessary dependencies
+- **Check compatibility**: Ensure dependencies work on all platforms
+
+### Build and Deployment
+- **Test builds**: Always test builds before deployment
+- **Use proper environment variables**: Handle environment configuration correctly
+- **Optimize for production**: Ensure production builds are optimized
+- **Monitor performance**: Track app performance metrics
+
+### Error Handling
+- **Use proper error boundaries**: Implement error boundaries for components
+- **Handle async errors**: Properly handle async operation errors
+- **Provide user feedback**: Give users clear error messages
+- **Log errors appropriately**: Log errors for debugging without exposing sensitive data
+
+### State Management
+- **Use appropriate state**: Choose the right state management solution
+- **Avoid prop drilling**: Use context or state management libraries when needed
+- **Optimize re-renders**: Minimize unnecessary component re-renders
+- **Handle loading states**: Provide proper loading indicators
+
+### Navigation
+- **Use Expo Router**: Follow Expo Router best practices
+- **Handle deep linking**: Implement proper deep linking support
+- **Manage navigation state**: Handle navigation state appropriately
+- **Test navigation flows**: Verify all navigation paths work correctly
+
+### Platform Considerations
+- **Test on all platforms**: Ensure functionality works on iOS, Android, and Web
+- **Handle platform differences**: Use platform-specific code when necessary
+- **Optimize for each platform**: Consider platform-specific optimizations
+- **Follow platform guidelines**: Adhere to platform-specific design guidelines
+
+### Server-Side Rendering (SSR)
+- **SSR is NOT a design consideration**: This project does not require SSR support
+- **Use direct imports**: Import libraries directly at the top of files without dynamic imports
+- **Avoid SSR workarounds**: No need for dynamic imports or conditional loading for SSR compatibility
+- **Simplify library usage**: Use standard import patterns for all third-party libraries
+
+```typescript
+// ✅ CORRECT - Direct import (no SSR considerations)
+import { Html5QrcodeScanner } from 'html5-qrcode';
+
+// ❌ WRONG - Dynamic import for SSR (not needed)
+import('html5-qrcode').then(({ Html5QrcodeScanner }) => {
+  // Library usage
+});
+```
