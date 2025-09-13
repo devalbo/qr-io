@@ -61,20 +61,11 @@ function generateBuildInfo() {
     
     fs.writeFileSync(outputPath, jsonContent, 'utf8');
 
-    // Also copy to dist directory for deployment
-    const distPath = path.join(__dirname, '..', 'dist', 'build-info.json');
-    const distDir = path.dirname(distPath);
-    if (!fs.existsSync(distDir)) {
-      fs.mkdirSync(distDir, { recursive: true });
-    }
-    fs.writeFileSync(distPath, jsonContent, 'utf8');
-
     console.log('✅ Build info generated successfully:');
     console.log(`   Version: ${version}`);
     console.log(`   Git Hash: ${gitShortHash}`);
     console.log(`   Build Time: ${buildDate}`);
-    console.log(`   Public: ${outputPath}`);
-    console.log(`   Dist: ${distPath}`);
+    console.log(`   Output: ${outputPath}`);
 
   } catch (error) {
     console.error('❌ Error generating build info:', error.message);

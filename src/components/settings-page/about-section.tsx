@@ -17,10 +17,6 @@ export const AboutSection = () => {
     <View>
       <Text style={styles.sectionTitle}>About</Text>
       <View style={styles.aboutItem}>
-        <Text style={styles.aboutLabel}>Version:</Text>
-        <Text style={styles.aboutValue}>{buildInfo?.version || 'Unknown'}</Text>
-      </View>
-      <View style={styles.aboutItem}>
         <Text style={styles.aboutLabel}>Build Date:</Text>
         <Text style={styles.aboutValue}>{buildInfo?.buildDate || 'Unknown'}</Text>
       </View>
