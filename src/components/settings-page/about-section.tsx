@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet } from "react-native"
-
+import { getVersion, getBuildDate, getGitShortHash, getBuildTimeString } from "@/src/utils/build-info"
 
 export const AboutSection = () => {
   return (
@@ -7,11 +7,19 @@ export const AboutSection = () => {
       <Text style={styles.sectionTitle}>About</Text>
       <View style={styles.aboutItem}>
         <Text style={styles.aboutLabel}>Version:</Text>
-        <Text style={styles.aboutValue}>1.0.0</Text>
+        <Text style={styles.aboutValue}>{getVersion()}</Text>
       </View>
       <View style={styles.aboutItem}>
-        <Text style={styles.aboutLabel}>Build:</Text>
-        <Text style={styles.aboutValue}>2024.01.01</Text>
+        <Text style={styles.aboutLabel}>Build Date:</Text>
+        <Text style={styles.aboutValue}>{getBuildDate()}</Text>
+      </View>
+      <View style={styles.aboutItem}>
+        <Text style={styles.aboutLabel}>Git Hash:</Text>
+        <Text style={styles.aboutValue}>{getGitShortHash()}</Text>
+      </View>
+      <View style={styles.aboutItem}>
+        <Text style={styles.aboutLabel}>Build Time:</Text>
+        <Text style={styles.aboutValue}>{getBuildTimeString()}</Text>
       </View>
     </View>
   )
