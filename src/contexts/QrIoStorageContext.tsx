@@ -3,9 +3,7 @@ import { createQrIoStore } from "./storage/tb-init";
 import { ActivityIndicator, Platform, View, Text, StyleSheet } from 'react-native';
 import { CONTENT_STREAMS_TABLE, IQrIoTbData, IQrIoTbStoreContextType, IQrIoTbStoreProviderProps, IQrIoTbStoreQueryApi, SCANNED_CONTENT_TABLE } from "./qrio-backend-types";
 import { createLocalPersister } from "tinybase/persisters/persister-browser";
-import { createExpoSqlitePersister } from "tinybase/persisters/persister-expo-sqlite";
 import { useCreatePersister, useCreateStore, useRowCountListener, useRowListener } from "tinybase/ui-react";
-import * as SQLite from 'expo-sqlite';
 import { getAllStreams, getExpectedTotalFrameCountForStreamId, getNumFramesReadForStreamId, getFramesForStreamId, resetStore, getFramesWithUnrecognizedStreams, getStreamById, deleteStream } from "./storage/tb-query";
 import { ContentAcquisitionStreamRecord, TxStreamId } from "../types/database";
 import { setAppSettings, getAppSettings } from "./storage/tb-settings";
@@ -13,6 +11,34 @@ import { AppSettings } from "../zod-types/app-settings";
 
 
 const QrIoTbStoreContext = createContext<IQrIoTbStoreContextType | null>(null);
+
+// Helper function to create the appropriate persister based on platform
+const createPlatformPersister = async (store: any) => {
+  if (Platform.OS === 'web') {
+    // Use browser persister for web
+    const persister = createLocalPersister(store, 'qr-io');
+    return persister;
+  } else {
+    // Use SQLite persister for native platforms
+    // Use eval to prevent bundler from trying to resolve these modules at build time
+    try {
+      const sqliteModule = eval('require("expo-sqlite")');
+      const persisterModule = eval('require("tinybase/persisters/persister-expo-sqlite")');
+      
+      console.log("OPENING DB");
+      const db = sqliteModule.openDatabaseSync('qr-io.db');
+      console.log("DB CREATED");
+
+      const persister = persisterModule.createExpoSqlitePersister(store, db, "qr-io");
+      return persister;
+    } catch (error) {
+      console.error('Failed to load SQLite persister:', error);
+      // Fallback to browser persister if SQLite fails
+      const persister = createLocalPersister(store, 'qr-io');
+      return persister;
+    }
+  }
+};
 
 
 const StoreLoadingFallback = () => (
@@ -36,19 +62,7 @@ export const QrIoTbStoreProvider = ({ children }: IQrIoTbStoreProviderProps) => 
     store,
     async (store) => {
       console.log("CREATING STORE");
-      if (Platform.OS === 'web') {
-        // Use browser persister for web
-        const persister = createLocalPersister(store, 'qr-io');
-        return persister;
-      } else {
-        // Use SQLite persister for native platforms
-        console.log("OPENING DB");
-        const db = SQLite.openDatabaseSync('qr-io.db');
-        console.log("DB CREATED");
-
-        const persister = createExpoSqlitePersister(store, db, "qr-io");
-        return persister;
-      }
+      return await createPlatformPersister(store);
     },
     [],
     async (persister) => {
