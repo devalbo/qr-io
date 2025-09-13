@@ -64,10 +64,11 @@ const styles = StyleSheet.create({
 // };
 
 
-const StoreLoadingFallback = () => (
+const StoreLoadingFallback = ({ initializationTimedOut }: { initializationTimedOut: boolean }) => (
   <View style={styles.loadingContainer}>
     <ActivityIndicator size="large" color="#007AFF" />
     <Text style={styles.loadingText}>Initializing QRIO store...</Text>
+    {initializationTimedOut && <Text style={styles.loadingText}>Initialization timed out</Text>}
   </View>
 );
 
@@ -84,23 +85,23 @@ export const QrIoTbStoreProvider = ({ children }: IQrIoTbStoreProviderProps) => 
   console.log("Store created:", store);
   
   const [isInitialized, setIsInitialized] = useState(false);
+  const [initializationTimedOut, setInitializationTimedOut] = useState(false);
   const [allStreams, setAllStreams] = useState<ContentAcquisitionStreamRecord[]>([]);
 
-  console.log("STORE CONTEXT - Provider initialized");
+  console.log("STORE CONTEXT - Provider initializing");
 
   // Add a timeout fallback to prevent infinite loading
   useEffect(() => {
     const timeout = setTimeout(() => {
       if (!isInitialized) {
         console.warn("Store initialization timeout - forcing initialization");
-        setIsInitialized(true);
+        setInitializationTimedOut(true);
       }
     }, 5000); // 5 second timeout
 
     return () => clearTimeout(timeout);
   }, [isInitialized]);
 
-  // Temporarily disable persister to get the app working
   useEffect(() => {
     console.log("Initializing store without persister for now");
     setIsInitialized(true);
@@ -125,7 +126,9 @@ export const QrIoTbStoreProvider = ({ children }: IQrIoTbStoreProviderProps) => 
   // );
 
   if (!isInitialized) {
-    return <StoreLoadingFallback />;
+    return <StoreLoadingFallback
+      initializationTimedOut={initializationTimedOut}
+    />;
   }
 
   const queryApi: IQrIoTbStoreQueryApi = {

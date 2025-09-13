@@ -3,6 +3,7 @@ import { useQrIoTbStore } from './QrIoStorageContext';
 import { AppSettings } from '../zod-types/app-settings';
 import { IBackendApi } from './qrio-backend-types';
 import { BackendApi } from './backend-api';
+import { DEFAULT_APP_SETTINGS } from '@/src/constants/tabs';
 
 
 interface AppContextType {
@@ -21,19 +22,16 @@ interface AppProviderProps {
 export const AppProvider = ({ children }: AppProviderProps) => {
   console.log("APP PROVIDER - Starting");
 
-  const [settings, setSettings] = useState(() => {
+  const { queryApi } = useQrIoTbStore();
+
+  const [settings, setSettings] = useState<AppSettings>(() => {
     console.log("APP PROVIDER - Initializing settings with defaults");
-    return {} as AppSettings; // Start with empty settings
+    return DEFAULT_APP_SETTINGS;    
   });
   const [isLoading, setIsLoading] = useState(false);
-
-  // Temporarily disable store dependency
-  const queryApi = null;
-
+  
   const updateSettings = (newSettings: Partial<AppSettings>) => {
-    if (queryApi) {
-      queryApi.setAppSettings({ ...settings, ...newSettings });
-    }
+    queryApi.setAppSettings({ ...settings, ...newSettings });
     setSettings(prev => ({ ...prev, ...newSettings }));
   };
     
