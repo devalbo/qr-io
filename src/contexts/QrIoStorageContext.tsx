@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
 const StoreLoadingFallback = () => (
   <View style={styles.loadingContainer}>
     <ActivityIndicator size="large" color="#007AFF" />
-    <Text style={styles.loadingText}>Initializing store...</Text>
+    <Text style={styles.loadingText}>Initializing QRIO store...</Text>
   </View>
 );
 
