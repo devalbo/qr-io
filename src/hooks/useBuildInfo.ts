@@ -28,11 +28,32 @@ export const useBuildInfo = (): UseBuildInfoReturn => {
         setLoading(true);
         setError(null);
         
-        // Try to fetch from the public directory
-        const response = await fetch('/build-info.json');
+        // Try multiple possible URLs for build info
+        const possibleUrls = [
+          '/qr-io/build-info.json',  // With base URL
+          '/build-info.json',        // Without base URL
+          './build-info.json',       // Relative path
+          'build-info.json'          // Just filename
+        ];
         
-        if (!response.ok) {
-          throw new Error(`Failed to fetch build info: ${response.status}`);
+        let response;
+        let lastError;
+        
+        for (const url of possibleUrls) {
+          try {
+            response = await fetch(url);
+            if (response.ok) {
+              console.log(`✅ Build info loaded from: ${url}`);
+              break; // Success, stop trying other URLs
+            }
+          } catch (error) {
+            lastError = error;
+            continue; // Try next URL
+          }
+        }
+        
+        if (!response || !response.ok) {
+          throw new Error(`Failed to fetch build info from any URL. Last error: ${lastError instanceof Error ? lastError.message : 'Unknown error'}`);
         }
         
         const data: BuildInfo = await response.json();
