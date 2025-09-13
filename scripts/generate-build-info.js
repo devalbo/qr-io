@@ -51,7 +51,7 @@ function generateBuildInfo() {
     const jsonContent = JSON.stringify(buildInfo, null, 2);
 
     // Write the JSON file to the public directory (will be included in build output)
-    const outputPath = path.join(__dirname, '..', 'public', 'build-info.json');
+    const outputPath = path.join(__dirname, '..', 'dist', 'build-info.json');
     
     // Ensure the public directory exists
     const publicDir = path.dirname(outputPath);
