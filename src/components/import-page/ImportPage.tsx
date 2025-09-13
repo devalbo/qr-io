@@ -11,7 +11,7 @@ import { LoadingSpinner } from '../LoadingSpinner';
 import { GenericTabControl } from '../GenericTabControl';
 import { ImportStreamSection } from './import-stream-section';
 import { InspectFramesSection } from './inspect-frames-section';
-import { SharedFileBanner } from './SharedFileBanner';
+// import { SharedFileBanner } from './SharedFileBanner';
 
 type ScannerMode = 'stream' | 'frame';
 
@@ -60,7 +60,7 @@ export const ImportPage = () => {
 
   return (
     <ScrollView style={styles.container}>
-      <SharedFileBanner />
+      {/* <SharedFileBanner /> */}
       
       <View style={styles.header}>
         <Text style={styles.title}>Import Data</Text>

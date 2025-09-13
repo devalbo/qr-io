@@ -43,11 +43,11 @@ export default function RootLayout() {
   
   return (
     <SafeAreaProvider>
-      <AppProvider>
-        <QrIoTbStoreProvider>
+      <QrIoTbStoreProvider>
+        <AppProvider>
           <AppContent />
-        </QrIoTbStoreProvider>
-      </AppProvider>
+        </AppProvider>
+      </QrIoTbStoreProvider>
     </SafeAreaProvider>
   );
 }

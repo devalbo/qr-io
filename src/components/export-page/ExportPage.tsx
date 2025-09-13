@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useContext } from 'react';
 import { 
   View, 
   Text, 
@@ -19,7 +19,7 @@ import { convertContentTxDataToQrDataFrames } from '@/src/utils/qrdata-utils';
 import { DebugContent } from '../import-page/debug-content';
 import * as DocumentPicker from 'expo-document-picker';
 import { useFocusEffect } from '@react-navigation/native';
-import { useFileIntent } from '../../contexts/FileIntentContext';
+import { FileIntentContext } from '../../contexts/FileIntentContext';
 
 
 
@@ -40,7 +40,8 @@ const DEBUG_EXPORT_SECTIONS = [
 
 export const ExportPage = () => {
   const { isLoading, settings } = useApp();
-  const { sharedFile } = useFileIntent();
+  const fileIntentContext = useContext(FileIntentContext);
+  const sharedFile = fileIntentContext?.sharedFile || null;
   const [lastExportResult, setLastExportResult] = useState<string>('');
   
   const [activeTab, setActiveTab] = useState<ExportTabKey>('qr');

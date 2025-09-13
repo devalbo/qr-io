@@ -7,7 +7,7 @@ interface FileIntentContextType {
   clearSharedFile: () => void;
 }
 
-const FileIntentContext = createContext<FileIntentContextType | undefined>(undefined);
+export const FileIntentContext = createContext<FileIntentContextType | undefined>(undefined);
 
 interface FileIntentProviderProps {
   children: ReactNode;

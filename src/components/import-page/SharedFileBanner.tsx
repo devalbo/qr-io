@@ -1,11 +1,18 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { useFileIntent } from '@/src/contexts/FileIntentContext';
+import { FileIntentContext } from '@/src/contexts/FileIntentContext';
 import { formatFileSize, getFileIcon, validateSharedFile } from '@/src/utils/file-intent-utils';
 import { useRouter } from 'expo-router';
 
 export const SharedFileBanner = () => {
-  const { sharedFile, clearSharedFile } = useFileIntent();
+  const context = useContext(FileIntentContext);
+  
+  // If no context is available, don't render anything
+  if (!context) {
+    return null;
+  }
+  
+  const { sharedFile, clearSharedFile } = context;
   const router = useRouter();
 
   if (!sharedFile) {

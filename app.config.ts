@@ -1,0 +1,91 @@
+import { ExpoConfig, ConfigContext } from 'expo/config';
+
+const BASE_PATH = process.env.EXPO_PUBLIC_BASE_URL || '/qr-io/';
+
+export default ({ config }: ConfigContext): ExpoConfig => ({
+  ...config,
+  name: "qr-io",
+  slug: "qr-io",
+  version: "1.0.0",
+  orientation: "portrait",
+  icon: "./assets/icon.png",
+  userInterfaceStyle: "light",
+  newArchEnabled: true,
+  splash: {
+    image: "./assets/splash-icon.png",
+    resizeMode: "contain",
+    backgroundColor: "#ffffff"
+  },
+  ios: {
+    supportsTablet: true,
+    infoPlist: {
+      NSCameraUsageDescription: "This app needs access to camera to scan QR codes.",
+      CFBundleDocumentTypes: [
+        {
+          CFBundleTypeName: "All Files",
+          CFBundleTypeRole: "Viewer",
+          LSItemContentTypes: ["public.item"],
+          LSHandlerRank: "Alternate"
+        }
+      ],
+      UTExportedTypeDeclarations: [
+        {
+          UTTypeConformsTo: ["public.item"],
+          UTTypeDescription: "All Files",
+          UTTypeIdentifier: "public.item",
+          UTTypeTagSpecification: {
+            "public.filename-extension": "*"
+          }
+        }
+      ]
+    }
+  },
+  android: {
+    adaptiveIcon: {
+      foregroundImage: "./assets/adaptive-icon.png",
+      backgroundColor: "#ffffff"
+    },
+    edgeToEdgeEnabled: true,
+    permissions: [
+      "android.permission.CAMERA"
+    ],
+    intentFilters: [
+      {
+        action: "android.intent.action.SEND",
+        category: ["android.intent.category.DEFAULT"],
+        data: {
+          mimeType: "*/*"
+        }
+      },
+      {
+        action: "android.intent.action.VIEW",
+        category: ["android.intent.category.DEFAULT", "android.intent.category.BROWSABLE"],
+        data: {
+          scheme: "file",
+          mimeType: "*/*"
+        }
+      }
+    ]
+  },
+  platforms: [
+    "ios",
+    "android",
+    "web"
+  ],
+  web: {
+    favicon: "./assets/favicon.png",
+    bundler: "metro",
+    output: "static",
+    baseUrl: BASE_PATH,
+    publicPath: BASE_PATH
+  },
+  plugins: [
+    [
+      "expo-camera",
+      {
+        cameraPermission: "Allow $(PRODUCT_NAME) to access camera to scan QR codes."
+      }
+    ],
+    "expo-router"
+  ]
+});
