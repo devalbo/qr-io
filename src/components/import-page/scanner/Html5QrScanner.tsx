@@ -9,7 +9,7 @@ const qrcodeRegionId = "html5qr-code-full-region";
 
 interface Html5QrcodePluginProps {
   fps: number;
-  qrbox: number;
+  qrbox?: number;
   aspectRatio: number;
   disableFlip: boolean;
   verbose: boolean;
@@ -36,20 +36,6 @@ export const Html5QrCodeScanner = ({
   };
 
   useEffect(() => {
-      // when component mounts
-      // const config = createConfig(props);
-      // const config = {
-      //   // fps: props.fps,
-      //   // qrbox: props.qrbox,
-      //   // aspectRatio: props.aspectRatio,
-      //   // disableFlip: props.disableFlip,
-      //   fps: 10,
-      //   qrbox: 250,
-      //   aspectRatio: 1.0,
-      //   disableFlip: false,
-
-      // };
-
       const config = {
         fps,
         qrbox,

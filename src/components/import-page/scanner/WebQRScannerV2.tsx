@@ -319,7 +319,7 @@ export const WebQRScannerV2 = ({
     <View style={styles.container}>
       <Html5QrCodeScanner
         fps={10}
-        qrbox={250}
+        // qrbox={250}
         aspectRatio={1.0}
         disableFlip={false}
         verbose={false}
