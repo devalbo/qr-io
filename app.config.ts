@@ -72,12 +72,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     "android",
     "web"
   ],
+  experiments: {
+    baseUrl: BASE_PATH
+  },
   web: {
     favicon: "./assets/favicon.png",
     bundler: "metro",
-    output: "static",
-    baseUrl: BASE_PATH,
-    publicPath: BASE_PATH
+    output: "static"
   },
   plugins: [
     [
