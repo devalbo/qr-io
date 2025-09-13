@@ -1,26 +1,36 @@
 import { View, Text, StyleSheet } from "react-native"
-import { getVersion, getBuildDate, getGitShortHash, getBuildTimeString } from "@/src/utils/build-info"
+import { useBuildInfo } from "../../hooks/useBuildInfo"
 
 export const AboutSection = () => {
+  const { buildInfo, loading, error } = useBuildInfo();
+
+  if (loading) {
+    return (
+      <View>
+        <Text style={styles.sectionTitle}>About</Text>
+        <Text style={styles.loadingText}>Loading build info...</Text>
+      </View>
+    );
+  }
+
   return (
     <View>
       <Text style={styles.sectionTitle}>About</Text>
       <View style={styles.aboutItem}>
         <Text style={styles.aboutLabel}>Version:</Text>
-        <Text style={styles.aboutValue}>{getVersion()}</Text>
+        <Text style={styles.aboutValue}>{buildInfo?.version || 'Unknown'}</Text>
       </View>
       <View style={styles.aboutItem}>
         <Text style={styles.aboutLabel}>Build Date:</Text>
-        <Text style={styles.aboutValue}>{getBuildDate()}</Text>
+        <Text style={styles.aboutValue}>{buildInfo?.buildDate || 'Unknown'}</Text>
       </View>
       <View style={styles.aboutItem}>
         <Text style={styles.aboutLabel}>Git Hash:</Text>
-        <Text style={styles.aboutValue}>{getGitShortHash()}</Text>
+        <Text style={styles.aboutValue}>{buildInfo?.gitShortHash || 'Unknown'}</Text>
       </View>
-      <View style={styles.aboutItem}>
-        <Text style={styles.aboutLabel}>Build Time:</Text>
-        <Text style={styles.aboutValue}>{getBuildTimeString()}</Text>
-      </View>
+      {error && (
+        <Text style={styles.errorText}>Note: Build info unavailable ({error})</Text>
+      )}
     </View>
   )
 }
@@ -206,6 +216,19 @@ const styles = StyleSheet.create({
   aboutValue: {
     fontSize: 16,
     color: '#666',
+  },
+  loadingText: {
+    fontSize: 14,
+    color: '#999',
+    fontStyle: 'italic',
+    textAlign: 'center',
+    paddingVertical: 16,
+  },
+  errorText: {
+    fontSize: 12,
+    color: '#FF6B6B',
+    fontStyle: 'italic',
+    marginTop: 8,
   },
   button: {
     backgroundColor: '#007AFF',

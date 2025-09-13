@@ -47,84 +47,34 @@ function generateBuildInfo() {
       buildDate
     };
 
-    // Generate the TypeScript file content
-    const fileContent = `/**
- * Build information utility
- * This file contains build-time information that gets generated during the build process
- * 
- * Generated on: ${buildDate}
- * Git Hash: ${gitHash}
- */
+    // Generate the JSON file content
+    const jsonContent = JSON.stringify(buildInfo, null, 2);
 
-export interface BuildInfo {
-  buildTime: string;
-  gitHash: string;
-  gitShortHash: string;
-  version: string;
-  buildDate: string;
-}
+    // Write the JSON file to the public directory (will be included in build output)
+    const outputPath = path.join(__dirname, '..', 'public', 'build-info.json');
+    
+    // Ensure the public directory exists
+    const publicDir = path.dirname(outputPath);
+    if (!fs.existsSync(publicDir)) {
+      fs.mkdirSync(publicDir, { recursive: true });
+    }
+    
+    fs.writeFileSync(outputPath, jsonContent, 'utf8');
 
-// Generated build info - DO NOT EDIT MANUALLY
-export const buildInfo: BuildInfo = {
-  buildTime: '${buildTime}',
-  gitHash: '${gitHash}',
-  gitShortHash: '${gitShortHash}',
-  version: '${version}',
-  buildDate: '${buildDate}'
-};
-
-/**
- * Get formatted build time string
- */
-export const getBuildTimeString = (): string => {
-  return buildInfo.buildTime;
-};
-
-/**
- * Get git hash (full)
- */
-export const getGitHash = (): string => {
-  return buildInfo.gitHash;
-};
-
-/**
- * Get git hash (short)
- */
-export const getGitShortHash = (): string => {
-  return buildInfo.gitShortHash;
-};
-
-/**
- * Get version string
- */
-export const getVersion = (): string => {
-  return buildInfo.version;
-};
-
-/**
- * Get build date string
- */
-export const getBuildDate = (): string => {
-  return buildInfo.buildDate;
-};
-
-/**
- * Get all build info
- */
-export const getAllBuildInfo = (): BuildInfo => {
-  return { ...buildInfo };
-};
-`;
-
-    // Write the file
-    const outputPath = path.join(__dirname, '..', 'src', 'utils', 'build-info.ts');
-    fs.writeFileSync(outputPath, fileContent, 'utf8');
+    // Also copy to dist directory for deployment
+    const distPath = path.join(__dirname, '..', 'dist', 'build-info.json');
+    const distDir = path.dirname(distPath);
+    if (!fs.existsSync(distDir)) {
+      fs.mkdirSync(distDir, { recursive: true });
+    }
+    fs.writeFileSync(distPath, jsonContent, 'utf8');
 
     console.log('✅ Build info generated successfully:');
     console.log(`   Version: ${version}`);
     console.log(`   Git Hash: ${gitShortHash}`);
     console.log(`   Build Time: ${buildDate}`);
-    console.log(`   Output: ${outputPath}`);
+    console.log(`   Public: ${outputPath}`);
+    console.log(`   Dist: ${distPath}`);
 
   } catch (error) {
     console.error('❌ Error generating build info:', error.message);
