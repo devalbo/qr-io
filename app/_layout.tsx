@@ -7,34 +7,47 @@ import { useFileIntentHandler } from '../src/hooks/useFileIntentHandler';
 import { StatusBar } from 'expo-status-bar';
 
 const AppContent = () => {
-  const { sharedFile, isProcessing, clearSharedFile } = useFileIntentHandler();
+  console.log("APP CONTENT - Starting");
+  
+  // Temporarily disable file intent handler to isolate the issue
+  // const { sharedFile, isProcessing, clearSharedFile } = useFileIntentHandler();
+  // console.log("APP CONTENT - File intent handler loaded");
 
   return (
-    <FileIntentProvider 
-      sharedFile={sharedFile} 
-      isProcessing={isProcessing} 
-      clearSharedFile={clearSharedFile}
+    <Stack
+      screenOptions={{
+        headerShown: false,
+      }}
     >
-      <Stack
-        screenOptions={{
-          headerShown: false,
-        }}
-      >
-        <Stack.Screen name="(tabs)" />
-      </Stack>
-      <StatusBar style="auto" />
-    </FileIntentProvider>
+      <Stack.Screen name="(tabs)" />
+    </Stack>
+    // <FileIntentProvider 
+    //   sharedFile={sharedFile} 
+    //   isProcessing={isProcessing} 
+    //   clearSharedFile={clearSharedFile}
+    // >
+    //   <Stack
+    //     screenOptions={{
+    //       headerShown: false,
+    //     }}
+    //   >
+    //     <Stack.Screen name="(tabs)" />
+    //   </Stack>
+    //   <StatusBar style="auto" />
+    // </FileIntentProvider>
   );
 };
 
 export default function RootLayout() {
+  console.log("ROOT LAYOUT - Starting");
+  
   return (
     <SafeAreaProvider>
-      <QrIoTbStoreProvider>
-        <AppProvider>
+      <AppProvider>
+        <QrIoTbStoreProvider>
           <AppContent />
-        </AppProvider>
-      </QrIoTbStoreProvider>
+        </QrIoTbStoreProvider>
+      </AppProvider>
     </SafeAreaProvider>
   );
 }

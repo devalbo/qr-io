@@ -19,14 +19,21 @@ interface AppProviderProps {
 }
 
 export const AppProvider = ({ children }: AppProviderProps) => {
+  console.log("APP PROVIDER - Starting");
 
-  const { queryApi } = useQrIoTbStore();
-
-  const [settings, setSettings] = useState(() => queryApi.getAppSettings());
+  const [settings, setSettings] = useState(() => {
+    console.log("APP PROVIDER - Initializing settings with defaults");
+    return {} as AppSettings; // Start with empty settings
+  });
   const [isLoading, setIsLoading] = useState(false);
 
+  // Temporarily disable store dependency
+  const queryApi = null;
+
   const updateSettings = (newSettings: Partial<AppSettings>) => {
-    queryApi.setAppSettings({ ...settings, ...newSettings });
+    if (queryApi) {
+      queryApi.setAppSettings({ ...settings, ...newSettings });
+    }
     setSettings(prev => ({ ...prev, ...newSettings }));
   };
     

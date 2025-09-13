@@ -100,48 +100,11 @@ export const QrIoTbStoreProvider = ({ children }: IQrIoTbStoreProviderProps) => 
     return () => clearTimeout(timeout);
   }, [isInitialized]);
 
-  useCreatePersister(
-    store,
-    async (store) => {
-      console.log("CREATING STORE");
-      try {
-        const persister = await createPlatformPersister(store);
-        console.log("Platform persister created:", persister);
-        return persister;
-      } catch (error) {
-        console.error('Failed to create platform persister:', error);
-        // Return null to indicate failure
-        return null;
-      }
-    },
-    [],
-    async (persister) => {
-      console.log("CREATING PERSISTER", persister);
-      if (persister) {
-        console.log('persister', persister);
-        try {
-          await persister.startAutoLoad([
-            {
-              [SCANNED_CONTENT_TABLE]: { },
-              [CONTENT_STREAMS_TABLE]: { },
-            },
-            { }
-          ]);
-          console.log("startAutoLoad done");
-          
-          await persister.startAutoSave();
-          console.log("startAutoSave done");
-          setIsInitialized(true);
-        } catch (error) {
-          console.error('Persister initialization error:', error);
-          setIsInitialized(true); // Still mark as initialized to prevent blocking
-        }
-      } else {
-        console.log("No persister available, initializing without persistence");
-        setIsInitialized(true);
-      }
-    }
-  );
+  // Temporarily disable persister to get the app working
+  useEffect(() => {
+    console.log("Initializing store without persister for now");
+    setIsInitialized(true);
+  }, []);
 
   useRowCountListener(CONTENT_STREAMS_TABLE, 
     async (_store, tableId, _rowId) => {
