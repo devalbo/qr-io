@@ -1,16 +1,9 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { AppProvider } from '../../src/contexts/AppContext';
 import { useDeviceInfo } from '../../src/hooks/useDeviceInfo';
 import { Text } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
-import { QrIoTbStoreProvider } from '@/src/contexts/QrIoStorageContext';
-import { FileIntentProvider } from '../../src/contexts/FileIntentContext';
-import { useFileIntentHandler } from '../../src/hooks/useFileIntentHandler';
 
-
-const TabsLayout = () => {
+export default function TabsLayout() {
   const { shouldUseBottomTabs } = useDeviceInfo();
 
   return (
@@ -37,7 +30,10 @@ const TabsLayout = () => {
       <Tabs.Screen
         name="index"
         options={{
-          href: null,
+          title: 'Home',
+          tabBarIcon: ({ color }) => (
+            <Text style={{ fontSize: 24, color }}>🏠</Text>
+          ),
         }}
       />
       <Tabs.Screen
@@ -79,33 +75,4 @@ const TabsLayout = () => {
       />
     </Tabs>
   );
-};
-
-const AppContent = () => {
-  const { sharedFile, isProcessing, clearSharedFile } = useFileIntentHandler();
-
-  return (
-    <FileIntentProvider 
-      sharedFile={sharedFile} 
-      isProcessing={isProcessing} 
-      clearSharedFile={clearSharedFile}
-    >
-      <TabsLayout />
-    </FileIntentProvider>
-  );
-};
-
-export const RootLayout = () => {
-  return (
-    <SafeAreaProvider>
-      <QrIoTbStoreProvider>
-        <AppProvider>
-          <AppContent />
-          <StatusBar style="auto" />
-        </AppProvider>
-      </QrIoTbStoreProvider>
-    </SafeAreaProvider>
-  );
 }
-
-export default RootLayout;

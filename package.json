@@ -1,6 +1,7 @@
 {
   "name": "qr-io",
   "version": "1.0.0",
+  "homepage": "https://devalbo.github.io/qr-io",
   "main": "index.ts",
   "scripts": {
     "start": "expo start",
