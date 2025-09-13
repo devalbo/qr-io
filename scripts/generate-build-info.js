@@ -61,6 +61,9 @@ function generateBuildInfo() {
     
     fs.writeFileSync(outputPath, jsonContent, 'utf8');
 
+    console.log("writing build info to: ", outputPath);
+    console.log("build info: ", jsonContent);
+
     console.log('✅ Build info generated successfully:');
     console.log(`   Version: ${version}`);
     console.log(`   Git Hash: ${gitShortHash}`);
