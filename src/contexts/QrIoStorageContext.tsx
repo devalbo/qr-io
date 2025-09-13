@@ -2,43 +2,66 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { createQrIoStore } from "./storage/tb-init";
 import { ActivityIndicator, Platform, View, Text, StyleSheet } from 'react-native';
 import { CONTENT_STREAMS_TABLE, IQrIoTbData, IQrIoTbStoreContextType, IQrIoTbStoreProviderProps, IQrIoTbStoreQueryApi, SCANNED_CONTENT_TABLE } from "./qrio-backend-types";
-import { createLocalPersister } from "tinybase/persisters/persister-browser";
 import { useCreatePersister, useCreateStore, useRowCountListener, useRowListener } from "tinybase/ui-react";
 import { getAllStreams, getExpectedTotalFrameCountForStreamId, getNumFramesReadForStreamId, getFramesForStreamId, resetStore, getFramesWithUnrecognizedStreams, getStreamById, deleteStream } from "./storage/tb-query";
 import { ContentAcquisitionStreamRecord, TxStreamId } from "../types/database";
 import { setAppSettings, getAppSettings } from "./storage/tb-settings";
 import { AppSettings } from "../zod-types/app-settings";
+import { createPlatformPersister } from "./platform-persister";
 
 
 const QrIoTbStoreContext = createContext<IQrIoTbStoreContextType | null>(null);
 
-// Helper function to create the appropriate persister based on platform
-const createPlatformPersister = async (store: any) => {
-  if (Platform.OS === 'web') {
-    // Use browser persister for web
-    const persister = createLocalPersister(store, 'qr-io');
-    return persister;
-  } else {
-    // Use SQLite persister for native platforms
-    // Use eval to prevent bundler from trying to resolve these modules at build time
-    try {
-      const sqliteModule = eval('require("expo-sqlite")');
-      const persisterModule = eval('require("tinybase/persisters/persister-expo-sqlite")');
-      
-      console.log("OPENING DB");
-      const db = sqliteModule.openDatabaseSync('qr-io.db');
-      console.log("DB CREATED");
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: '#666',
+  },
+});
 
-      const persister = persisterModule.createExpoSqlitePersister(store, db, "qr-io");
-      return persister;
-    } catch (error) {
-      console.error('Failed to load SQLite persister:', error);
-      // Fallback to browser persister if SQLite fails
-      const persister = createLocalPersister(store, 'qr-io');
-      return persister;
-    }
-  }
-};
+// // Helper function to create the appropriate persister based on platform
+// const createPlatformPersister = async (store: any) => {
+//   console.log("Creating platform persister for platform:", Platform.OS);
+  
+//   if (Platform.OS === 'web') {
+//     // Use browser persister for web
+//     console.log("Creating browser persister...");
+//     try {
+//       const persister = createLocalPersister(store, 'qr-io');
+//       console.log("Browser persister created successfully");
+//       return persister;
+//     } catch (error) {
+//       console.error('Failed to create browser persister:', error);
+//       throw error;
+//     }
+//   } else {
+//     // Use SQLite persister for native platforms
+//     // Use eval to prevent bundler from trying to resolve these modules at build time
+//     try {
+//       const sqliteModule = eval('require("expo-sqlite")');
+//       const persisterModule = eval('require("tinybase/persisters/persister-expo-sqlite")');
+      
+//       console.log("OPENING DB");
+//       const db = sqliteModule.openDatabaseSync('qr-io.db');
+//       console.log("DB CREATED");
+
+//       const persister = persisterModule.createExpoSqlitePersister(store, db, "qr-io");
+//       return persister;
+//     } catch (error) {
+//       console.error('Failed to load SQLite persister:', error);
+//       // Fallback to browser persister if SQLite fails
+//       const persister = createLocalPersister(store, 'qr-io');
+//       return persister;
+//     }
+//   }
+// };
 
 
 const StoreLoadingFallback = () => (
@@ -51,22 +74,49 @@ const StoreLoadingFallback = () => (
 
 export const QrIoTbStoreProvider = ({ children }: IQrIoTbStoreProviderProps) => {
 
-  const store = useCreateStore(() => createQrIoStore());
+  console.log("STORE CONTEXT - Starting provider");
+  
+  const store = useCreateStore(() => {
+    console.log("Creating store with createQrIoStore");
+    return createQrIoStore();
+  });
+  
+  console.log("Store created:", store);
+  
   const [isInitialized, setIsInitialized] = useState(false);
   const [allStreams, setAllStreams] = useState<ContentAcquisitionStreamRecord[]>([]);
 
-  console.log("STORE CONTEXT");
+  console.log("STORE CONTEXT - Provider initialized");
 
+  // Add a timeout fallback to prevent infinite loading
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (!isInitialized) {
+        console.warn("Store initialization timeout - forcing initialization");
+        setIsInitialized(true);
+      }
+    }, 5000); // 5 second timeout
+
+    return () => clearTimeout(timeout);
+  }, [isInitialized]);
 
   useCreatePersister(
     store,
     async (store) => {
       console.log("CREATING STORE");
-      return await createPlatformPersister(store);
+      try {
+        const persister = await createPlatformPersister(store);
+        console.log("Platform persister created:", persister);
+        return persister;
+      } catch (error) {
+        console.error('Failed to create platform persister:', error);
+        // Return null to indicate failure
+        return null;
+      }
     },
     [],
     async (persister) => {
-      console.log("CREATING PERSISTER");
+      console.log("CREATING PERSISTER", persister);
       if (persister) {
         console.log('persister', persister);
         try {
@@ -86,6 +136,9 @@ export const QrIoTbStoreProvider = ({ children }: IQrIoTbStoreProviderProps) => 
           console.error('Persister initialization error:', error);
           setIsInitialized(true); // Still mark as initialized to prevent blocking
         }
+      } else {
+        console.log("No persister available, initializing without persistence");
+        setIsInitialized(true);
       }
     }
   );
@@ -155,16 +208,3 @@ export const useQrIoTbStore = (): IQrIoTbStoreContextType => {
 };
 
 
-const styles = StyleSheet.create({
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-  },
-  loadingText: {
-    marginTop: 16,
-    fontSize: 16,
-    color: '#666',
-  },
-});
