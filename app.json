@@ -72,7 +72,7 @@
       "favicon": "./assets/favicon.png",
       "bundler": "metro",
       "output": "static",
-      "baseUrl": "/qr-io"
+      "baseUrl": "/qr-io/"
     },
     "plugins": [
       [

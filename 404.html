@@ -36,22 +36,29 @@
     // GitHub Pages 404 handler for Expo Router client-side routing
     // This script handles SPA routing by redirecting 404s to the main app
     
-    // Get the current path and redirect to the main app with the path as a query parameter
+    // Get the current path and redirect to the main app
     var currentPath = window.location.pathname;
     var searchParams = window.location.search;
     var hash = window.location.hash;
     
-    // Remove the base path if it exists (for GitHub Pages deployment)
+    // Base path for GitHub Pages deployment
     var basePath = '/qr-io';
-    if (currentPath.startsWith(basePath)) {
-      currentPath = currentPath.substring(basePath.length);
+    
+    // If we're already at the base path, just redirect to the main app
+    if (currentPath === basePath || currentPath === basePath + '/') {
+      window.location.replace(basePath + '/');
+      return;
     }
     
-    // Construct the redirect URL
-    var redirectUrl = basePath + '/?redirect=' + encodeURIComponent(currentPath + searchParams + hash);
+    // If we're at a subpath, redirect to the main app and let React Router handle it
+    if (currentPath.startsWith(basePath + '/')) {
+      var subPath = currentPath.substring(basePath.length);
+      window.location.replace(basePath + '/#' + subPath + searchParams + hash);
+      return;
+    }
     
-    // Redirect immediately
-    window.location.replace(redirectUrl);
+    // For any other path, redirect to the main app
+    window.location.replace(basePath + '/');
   </script>
 </head>
 <body>
